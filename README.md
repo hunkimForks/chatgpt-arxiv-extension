@@ -1,4 +1,4 @@
-# ChatGPT for Google
+# ChatGPT Web QA
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/wong2/chatgpt-google-extension/pre-release-build.yml)
 ![Visitors](https://visitor-badge.glitch.me/badge?page_id=wong2.chat-gpt-google-extension&left_color=green&right_color=red)
@@ -6,44 +6,23 @@
 [![Discord](https://img.shields.io/discord/1067789258124951614?label=Discord)](https://discord.gg/XjPxP23v6X)
 ![License](https://img.shields.io/github/license/wong2/chatgpt-google-extension)
 
-A browser extension to display ChatGPT response alongside Google (and other search engines) results
+A browser extension to summarize web content and QA with smart ChatGPT.
 
 [Install from Chrome Web Store](https://chatgpt4google.com/chrome?utm_source=github)
 
-[Install from Mozilla Add-on Store](https://chatgpt4google.com/firefox?utm_source=github)
+## Supported Web Site
 
-## Supported Search Engines
-
-Google, Baidu, Bing, DuckDuckGo, Brave, Yahoo, Naver, Yandex, Kagi, Searx
+Daum
 
 ## Screenshot
 
-![Screenshot](screenshots/extension.png?raw=true)
+<img width="1159" alt="image" src="https://user-images.githubusercontent.com/901975/216748528-7f9fd261-cbbd-42fc-864b-2990985dfee8.png">
 
 ## Features
 
-- Supports all popular search engines
-- Markdown rendering
-- Code highlights
-- Dark mode
-- Provide feedback to improve ChatGPT
-- Copy to clipboard
-- Custom trigger mode
-- Switch languages
+- Summarize web content
+- QA and discussion using the content and chatgpt knowledge
 
-## Troubleshooting
-
-### How to make it work in Brave
-
-![Screenshot](screenshots/brave.png?raw=true)
-
-Disable "Prevent sites from fingerprinting me based on my language preferences" in `brave://settings/shields`
-
-### How to make it work in Opera
-
-![Screenshot](screenshots/opera.png?raw=true)
-
-Enable "Allow access to search page results" in the extension management page
 
 ## Build from source
 
