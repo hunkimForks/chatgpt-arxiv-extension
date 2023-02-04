@@ -16,6 +16,22 @@ interface Props {
   onStatusChange?: (status: QueryStatus) => void
 }
 
+const requestion = 'Ask Me Anything'
+function ReQuery(query: string) {
+  console.log('ReQuery: ' + query)
+  if (query == '') {
+    query = 'Hello'
+  }
+
+  const onStatusChange = (status: QueryStatus) => {
+    console.log(status)
+  }
+
+  const queryStatus: QueryStatus = 'success'
+
+  return <ChatGPTQuery question={query} onStatusChange={onStatusChange} />
+}
+
 function ChatGPTQuery(props: Props) {
   const [answer, setAnswer] = useState<Answer | null>(null)
   const [error, setError] = useState('')
@@ -94,17 +110,13 @@ function ChatGPTQuery(props: Props) {
         <ReactMarkdown rehypePlugins={[[rehypeHighlight, { detect: true }]]}>
           {answer.text}
         </ReactMarkdown>
-        {done && showTip && (
-          <p className="italic mt-2">
-            Enjoy this extension? Give us a 5-star rating at{' '}
-            <a
-              href="https://chatgpt4google.com/chrome?utm_source=rating_tip"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Chrome Web Store
-            </a>
-          </p>
+        {done && (
+          <div id="requestion">
+            <input type="text" value={requestion} id="question" style={{ width: '100%' }} />
+            <button id="submit" onClick={() => ReQuery(requestion)}>
+              Ask
+            </button>
+          </div>
         )}
       </div>
     )
@@ -149,7 +161,7 @@ function ChatGPTQuery(props: Props) {
     )
   }
 
-  return <p className="text-[#b6b8ba] animate-pulse">Waiting for ChatGPT response...</p>
+  return <p className="text-[#b6b8ba] animate-pulse">Waiting for ChatGPT summarize...</p>
 }
 
 export default memo(ChatGPTQuery)

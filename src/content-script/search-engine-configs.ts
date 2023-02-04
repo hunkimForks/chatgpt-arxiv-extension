@@ -11,6 +11,22 @@ export const config: Record<string, SearchEngine> = {
     sidebarContainerQuery: ['#rhs'],
     appendContainerQuery: ['#rcnt'],
   },
+  ohmynews: {
+    inputQuery: ["[name='q']"],
+    sidebarContainerQuery: ['#ctl00_dvWing'],
+
+    appendContainerQuery: [],
+  },
+  jtbc: {
+    inputQuery: ['articlebody'],
+    sidebarContainerQuery: ['#id_right_news_main'],
+    appendContainerQuery: [],
+  },
+  daum: {
+    inputQuery: ['mArticle'],
+    sidebarContainerQuery: ['div[data-cvdc-comp-name="toros_recommend_one_column"]'],
+    appendContainerQuery: [],
+  },
   bing: {
     inputQuery: ["[name='q']"],
     sidebarContainerQuery: ['#b_context'],

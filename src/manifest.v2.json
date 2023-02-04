@@ -24,6 +24,7 @@
   "content_scripts": [
     {
       "matches": [
+        "https://*.daum.net/*",
         "https://www.google.com/search*",
         "https://www.google.ad/search*",
         "https://www.google.ae/search*",

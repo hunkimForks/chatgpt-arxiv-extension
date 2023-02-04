@@ -1,6 +1,6 @@
 import { render } from 'preact'
 import '../base.css'
-import { getUserConfig, Language, Theme } from '../config'
+import { getUserConfig, Theme } from '../config'
 import { detectSystemColorScheme } from '../utils'
 import ChatGPTContainer from './ChatGPTContainer'
 import { config, SearchEngine } from './search-engine-configs'
@@ -46,16 +46,29 @@ const siteName = location.hostname.match(siteRegex)![0]
 const siteConfig = config[siteName]
 
 async function run() {
-  const searchInput = getPossibleElementByQuerySelector<HTMLInputElement>(siteConfig.inputQuery)
-  if (searchInput && searchInput.value) {
-    console.debug('Mount ChatGPT on', siteName)
-    const userConfig = await getUserConfig()
-    const searchValueWithLanguageOption =
-      userConfig.language === Language.Auto
-        ? searchInput.value
-        : `${searchInput.value}(in ${userConfig.language})`
-    mount(searchValueWithLanguageOption, siteConfig)
+  console.debug('Try to Mount ChatGPT on', siteName)
+
+  if (siteConfig.inputQuery) {
+    const bodyElement = document.getElementById(siteConfig.inputQuery[0])
+
+    if (bodyElement && bodyElement.innerText) {
+      const bodyInnerText = bodyElement.innerText.substring(0, 500)
+      console.log('Reading: ' + bodyInnerText)
+      const prompt =
+        'Summarize in one sentence and write lesson learned from the article. Also list all people in the article using bullets:\n\n\n'
+      mount(prompt + bodyInnerText, siteConfig)
+    }
   }
+
+  //const searchInput = getPossibleElementByQuerySelector<HTMLInputElement>(siteConfig.inputQuery)
+  //if (searchInput && searchInput.value) {
+  //  console.debug('Mount ChatGPT on', siteName)
+  //  const userConfig = await getUserConfig()
+  //  const searchValueWithLanguageOption =
+  //    userConfig.language === Language.Auto
+  //      ? searchInput.value
+  //      : `${searchInput.value}(in ${userConfig.language})`
+  //  mount(searchValueWithLanguageOption, siteConfig)
 }
 
 run()
