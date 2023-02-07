@@ -16,7 +16,6 @@ interface Props {
   onStatusChange?: (status: QueryStatus) => void
 }
 
-const requestion = 'Ask Me Anything'
 function ReQuery(query: string) {
   console.log('ReQuery: ' + query)
   if (query == '') {
@@ -39,6 +38,7 @@ function ChatGPTQuery(props: Props) {
   const [done, setDone] = useState(false)
   const [showTip, setShowTip] = useState(false)
   const [status, setStatus] = useState<QueryStatus>()
+  const [requestion, setRequestion] = useState('')
 
   useEffect(() => {
     props.onStatusChange?.(status)
@@ -111,12 +111,29 @@ function ChatGPTQuery(props: Props) {
           {answer.text}
         </ReactMarkdown>
         {done && (
-          <div id="requestion">
-            <input type="text" value={requestion} id="question" style={{ width: '100%' }} />
-            <button id="submit" onClick={() => ReQuery(requestion)}>
-              Ask
+          <form
+            id="requestion"
+            style={{ display: 'flex' }}
+            onSubmit={(e) => {
+              e.preventDefault()
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Ask Me Anything"
+              value={requestion}
+              onChange={(e) => setRequestion(e.target.value)}
+              id="question"
+              style={{ width: '100%', padding: '1rem' }}
+            />
+            <button
+              id="submit"
+              onClick={() => ReQuery(requestion)}
+              style={{ backgroundColor: '#fff', padding: '1rem', borderRadius: '0.2rem' }}
+            >
+              ASK
             </button>
-          </div>
+          </form>
         )}
       </div>
     )
