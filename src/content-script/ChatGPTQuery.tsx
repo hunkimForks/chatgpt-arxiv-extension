@@ -1,9 +1,11 @@
 import { GearIcon } from '@primer/octicons-react'
+import { debounce } from 'lodash-es'
 import { useEffect, useState } from 'preact/hooks'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeHighlight from 'rehype-highlight'
 import Browser from 'webextension-polyfill'
+import { requeryMount } from '.'
 import { captureEvent } from '../analytics'
 import { Answer } from '../messaging'
 import ChatGPTFeedback from './ChatGPTFeedback'
@@ -16,29 +18,16 @@ interface Props {
   onStatusChange?: (status: QueryStatus) => void
 }
 
-function ReQuery(query: string) {
-  console.log('ReQuery: ' + query)
-  if (query == '') {
-    query = 'Hello'
-  }
-
-  const onStatusChange = (status: QueryStatus) => {
-    console.log(status)
-  }
-
-  const queryStatus: QueryStatus = 'success'
-
-  return <ChatGPTQuery question={query} onStatusChange={onStatusChange} />
-}
-
 function ChatGPTQuery(props: Props) {
+  const inputRef = useRef<HTMLInputElement>(null)
   const [answer, setAnswer] = useState<Answer | null>(null)
   const [error, setError] = useState('')
   const [retry, setRetry] = useState(0)
   const [done, setDone] = useState(false)
   const [showTip, setShowTip] = useState(false)
   const [status, setStatus] = useState<QueryStatus>()
-  const [requestion, setRequestion] = useState('')
+  const [requestion, setRequestion] = useState<string>('')
+  const [questionIndex, setQuestionIndex] = useState(0)
 
   useEffect(() => {
     props.onStatusChange?.(status)
@@ -93,6 +82,18 @@ function ChatGPTQuery(props: Props) {
     Browser.runtime.sendMessage({ type: 'OPEN_OPTIONS_PAGE' })
   }, [])
 
+  // * Requery Handler Function
+  const requeryHandler = useCallback(() => {
+    requeryMount(requestion, questionIndex)
+      .then(() => {
+        if (inputRef.current) {
+          inputRef.current.value = ''
+        }
+        setQuestionIndex(questionIndex + 1)
+      })
+      .finally(() => setRequestion(''))
+  }, [requestion, questionIndex])
+
   if (answer) {
     return (
       <div className="markdown-body gpt-markdown" id="gpt-answer" dir="auto">
@@ -110,25 +111,29 @@ function ChatGPTQuery(props: Props) {
         <ReactMarkdown rehypePlugins={[[rehypeHighlight, { detect: true }]]}>
           {answer.text}
         </ReactMarkdown>
+        <div className="question-container"></div>
         {done && (
           <form
             id="requestion"
             style={{ display: 'flex' }}
             onSubmit={(e) => {
+              // submit when press enter key
               e.preventDefault()
             }}
           >
             <input
               type="text"
+              ref={inputRef}
               placeholder="Ask Me Anything"
-              value={requestion}
-              onChange={(e) => setRequestion(e.target.value)}
+              onChange={debounce((e) => {
+                setRequestion(e.target.value)
+              })}
               id="question"
               style={{ width: '100%', padding: '1rem' }}
             />
             <button
               id="submit"
-              onClick={() => ReQuery(requestion)}
+              onClick={requeryHandler}
               style={{ backgroundColor: '#fff', padding: '1rem', borderRadius: '0.2rem' }}
             >
               ASK

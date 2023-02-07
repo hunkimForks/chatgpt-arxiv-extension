@@ -41,6 +41,34 @@ async function mount(question: string, siteConfig: SearchEngine) {
   )
 }
 
+/**
+ * mount html elements when requestions triggered
+ * @param question question string
+ * @param index question index
+ */
+export async function requeryMount(question: string, index: number) {
+  const container = document.querySelector<HTMLDivElement>('.question-container')
+  let theme: Theme
+  const questionItem = document.createElement('div')
+  questionItem.className = `question-${index}`
+
+  const userConfig = await getUserConfig()
+  if (userConfig.theme === Theme.Auto) {
+    theme = detectSystemColorScheme()
+  } else {
+    theme = userConfig.theme
+  }
+  if (theme === Theme.Dark) {
+    container?.classList.add('gpt-dark')
+    questionItem.classList.add('gpt-dark')
+  } else {
+    container?.classList.add('gpt-light')
+    questionItem.classList.add('gpt-light')
+  }
+  questionItem.innerText = `Q${index + 1} : ${question}`
+  container?.appendChild(questionItem)
+}
+
 const siteRegex = new RegExp(Object.keys(config).join('|'))
 const siteName = location.hostname.match(siteRegex)![0]
 const siteConfig = config[siteName]
