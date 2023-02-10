@@ -1,13 +1,4 @@
-import {
-  Button,
-  CssBaseline,
-  GeistProvider,
-  Radio,
-  Text,
-  Textarea,
-  Toggle,
-  useToasts,
-} from '@geist-ui/core'
+import { CssBaseline, GeistProvider, Radio, Text, Toggle, useToasts } from '@geist-ui/core'
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks'
 import '../base.css'
 import {
@@ -21,6 +12,7 @@ import {
 } from '../config'
 import logo from '../logo.png'
 import { detectSystemColorScheme, getExtensionVersion } from '../utils'
+import PromptCard from './PromptCard'
 import ProviderSelect from './ProviderSelect'
 
 function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => void }) {
@@ -51,15 +43,6 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
       updateUserConfig({ theme })
       props.onThemeChange(theme)
       setToast({ text: 'Changes saved', type: 'success' })
-    },
-    [props, setToast],
-  )
-
-  const onPromptChange = useCallback(
-    (prompt: string) => {
-      setPrompt(prompt)
-      updateUserConfig({ prompt })
-      setToast({ text: 'Prompt changes saved', type: 'success' })
     },
     [props, setToast],
   )
@@ -101,16 +84,11 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
         <Text h3 className="mt-5">
           Prompt
         </Text>
-        <Textarea
-          value={prompt}
-          style={{ width: '80ch', height: '10em' }}
-          onChange={(event) => setPrompt(event.target.value)}
-        >
-          {prompt}
-        </Textarea>
-        <Button onClick={() => onPromptChange(prompt)} className="mt-3">
-          Save Prompt
-        </Button>
+        <PromptCard
+          header={'default'}
+          onSave={(prompt) => updateUserConfig({ prompt })}
+          prompt={prompt}
+        />
 
         <Text h3 className="mt-5">
           Trigger Mode
