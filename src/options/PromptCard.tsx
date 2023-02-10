@@ -29,7 +29,7 @@ function PromptCard(props: {
   return (
     <Card width="100%">
       <Card.Content>
-        <Grid.Container gap={2} justify="center">
+        <Grid.Container gap={2} justify="center" alignItems="center">
           <Grid xs>
             <Text b my={0}>
               {header}
@@ -37,7 +37,13 @@ function PromptCard(props: {
           </Grid>
           {onDismiss && (
             <Grid xs={2} justify="center" alignItems="center">
-              <Trash2 size={18} onClick={() => onDismiss()} />
+              <Button
+                style={{ border: 0 }}
+                iconRight={<Trash2 size={18} />}
+                auto
+                px={0.6}
+                onClick={() => onDismiss()}
+              />
             </Grid>
           )}
         </Grid.Container>
@@ -50,6 +56,7 @@ function PromptCard(props: {
           value={value}
           width="100%"
           height="10em"
+          placeholder="Type prompt here"
           onChange={(event) => setValue(event.target.value)}
         >
           {value}
