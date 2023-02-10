@@ -46,21 +46,12 @@ export interface SitePrompt {
   prompt: string
 }
 
-export interface AllPrompt {
-  default: string
-  sites: SitePrompt[]
-}
-
-const promptDefaultValue = {
-  default: Prompt,
-  sites: [],
-}
-
 const userConfigWithDefaultValue = {
   triggerMode: TriggerMode.Always,
   theme: Theme.Auto,
   language: Language.Auto,
   prompt: Prompt,
+  promptOverrides: [] as SitePrompt[],
 }
 
 export type UserConfig = typeof userConfigWithDefaultValue

@@ -6,13 +6,13 @@ function PromptCard(props: {
   header: string
   prompt: string
   onSave: (newPrompt: string) => Promise<void>
-  onDismiss?: () => void
+  onDismiss?: () => Promise<void>
 }) {
   const { header, prompt, onSave, onDismiss } = props
   const [value, setValue] = useState<string>(prompt)
   const { setToast } = useToasts()
 
-  const onPromptChange = useCallback(
+  const onClickSave = useCallback(
     (prompt: string) => {
       setValue(prompt)
       onSave(prompt)
@@ -42,7 +42,15 @@ function PromptCard(props: {
                 iconRight={<Trash2 size={18} />}
                 auto
                 px={0.6}
-                onClick={() => onDismiss()}
+                onClick={() =>
+                  onDismiss()
+                    .then(() => {
+                      setToast({ text: 'Prompt removed', type: 'success' })
+                    })
+                    .catch(() => {
+                      setToast({ text: 'Failed to remove prompt', type: 'error' })
+                    })
+                }
               />
             </Grid>
           )}
@@ -67,7 +75,7 @@ function PromptCard(props: {
           width="100%"
           type="secondary"
           ghost
-          onClick={() => onPromptChange(value)}
+          onClick={() => onClickSave(value)}
           className="mt-3"
         >
           Save Prompt

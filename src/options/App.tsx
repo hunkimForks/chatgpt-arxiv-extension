@@ -5,6 +5,7 @@ import {
   getUserConfig,
   Language,
   Prompt,
+  SitePrompt,
   Theme,
   TriggerMode,
   TRIGGER_MODE_TEXT,
@@ -19,6 +20,7 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
   const [triggerMode, setTriggerMode] = useState<TriggerMode>(TriggerMode.Always)
   const [language, setLanguage] = useState<Language>(Language.Auto)
   const [prompt, setPrompt] = useState<string>(Prompt)
+  const [promptOverrides, setPromptOverrides] = useState<SitePrompt[]>([])
   const { setToast } = useToasts()
 
   useEffect(() => {
@@ -26,6 +28,7 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
       setTriggerMode(config.triggerMode)
       setLanguage(config.language)
       setPrompt(config.prompt)
+      setPromptOverrides(config.promptOverrides)
     })
   }, [])
 
@@ -84,13 +87,41 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
         <Text h3 className="mt-5">
           Prompt
         </Text>
+
         <PromptCard
           header={'default'}
           onSave={(prompt) => updateUserConfig({ prompt })}
           prompt={prompt}
         />
 
-        <Text h3 className="mt-5">
+        {promptOverrides.map((override, index) => {
+          return (
+            <div key={override.site} className="my-3">
+              <PromptCard
+                header={override.site}
+                prompt={override.prompt}
+                onSave={(newPrompt) => {
+                  const newOverride: SitePrompt = {
+                    site: override.site,
+                    prompt: newPrompt,
+                  }
+                  const newOverrides = promptOverrides
+                    .filter((o) => o.site != override.site)
+                    .splice(index, 0, newOverride)
+                  setPromptOverrides(newOverrides)
+                  return updateUserConfig({ promptOverrides: newOverrides })
+                }}
+                onDismiss={() => {
+                  const newOverrides = promptOverrides.filter((_, i) => i !== index)
+                  setPromptOverrides(newOverrides)
+                  return updateUserConfig({ promptOverrides: newOverrides })
+                }}
+              />
+            </div>
+          )
+        })}
+
+        <Text h3 className="mt-8">
           Trigger Mode
         </Text>
 
