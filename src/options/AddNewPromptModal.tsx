@@ -25,6 +25,14 @@ function AddNewPromptModal(props: {
     return isPromptValid
   }
 
+  function close() {
+    setSite('')
+    setSiteError(false)
+    setPrompt('')
+    setPromptError(false)
+    onClose()
+  }
+
   return (
     <Modal visible={visible} onClose={onClose}>
       <Modal.Title>Add New Prompt</Modal.Title>
@@ -50,7 +58,7 @@ function AddNewPromptModal(props: {
           </div>
         )}
         <Textarea
-          my={1}
+          my={promptError ? 0 : 1}
           value={prompt}
           width="100%"
           height="10em"
@@ -58,7 +66,7 @@ function AddNewPromptModal(props: {
           onChange={(event) => setPrompt(event.target.value)}
         />
       </Modal.Content>
-      <Modal.Action passive onClick={() => onClose()}>
+      <Modal.Action passive onClick={() => close()}>
         Cancel
       </Modal.Action>
       <Modal.Action
@@ -68,10 +76,8 @@ function AddNewPromptModal(props: {
           }
           onSave({ site, prompt })
             .then(() => {
-              setSite('')
-              setPrompt('')
               setToast({ text: 'New Prompt saved', type: 'success' })
-              onClose()
+              close()
             })
             .catch(() => {
               setToast({ text: 'Failed to save prompt', type: 'error' })
