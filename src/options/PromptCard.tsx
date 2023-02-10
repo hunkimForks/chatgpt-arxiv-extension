@@ -16,7 +16,12 @@ function PromptCard(props: {
     (prompt: string) => {
       setValue(prompt)
       onSave(prompt)
-      setToast({ text: 'Prompt changes saved', type: 'success' })
+        .then(() => {
+          setToast({ text: 'Prompt changes saved', type: 'success' })
+        })
+        .catch(() => {
+          setToast({ text: 'Failed to save prompt', type: 'error' })
+        })
     },
     [onSave, setToast],
   )
