@@ -1,11 +1,9 @@
 import { GearIcon } from '@primer/octicons-react'
-import { debounce } from 'lodash-es'
 import { useEffect, useState } from 'preact/hooks'
 import { memo, useCallback, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeHighlight from 'rehype-highlight'
 import Browser from 'webextension-polyfill'
-import { requeryMount } from '.'
 import { captureEvent } from '../analytics'
 import { Answer } from '../messaging'
 import ChatGPTFeedback from './ChatGPTFeedback'
@@ -18,6 +16,12 @@ interface Props {
   onStatusChange?: (status: QueryStatus) => void
 }
 
+interface Requestion {
+  requestion: string
+  index: number
+  answer: Answer | null
+}
+
 function ChatGPTQuery(props: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [answer, setAnswer] = useState<Answer | null>(null)
@@ -26,7 +30,9 @@ function ChatGPTQuery(props: Props) {
   const [done, setDone] = useState(false)
   const [showTip, setShowTip] = useState(false)
   const [status, setStatus] = useState<QueryStatus>()
-  const [requestion, setRequestion] = useState<string>('')
+  const [reError, setReError] = useState('')
+  const [reQuestionDone, setReQuestionDone] = useState(false)
+  const [requestionList, setRequestionList] = useState<Requestion[]>([])
   const [questionIndex, setQuestionIndex] = useState(0)
 
   useEffect(() => {
@@ -44,6 +50,7 @@ function ChatGPTQuery(props: Props) {
         setStatus('error')
       } else if (msg.event === 'DONE') {
         setDone(true)
+        setReQuestionDone(true)
       }
     }
     port.onMessage.addListener(listener)
@@ -82,17 +89,51 @@ function ChatGPTQuery(props: Props) {
     Browser.runtime.sendMessage({ type: 'OPEN_OPTIONS_PAGE' })
   }, [])
 
+  // requestion
+  useEffect(() => {
+    if (!requestionList[questionIndex]) return
+    const port = Browser.runtime.connect()
+    const listener = (msg: any) => {
+      try {
+        if (msg.text) {
+          const requestionListValue = requestionList
+          requestionListValue[questionIndex].answer = msg
+          setRequestionList(requestionListValue)
+        } else if (msg.event === 'DONE') {
+          setReQuestionDone(true)
+          setQuestionIndex(questionIndex + 1)
+        }
+      } catch {
+        setReError(msg.error)
+      }
+    }
+    port.onMessage.addListener(listener)
+    port.postMessage({
+      question: requestionList[questionIndex].requestion,
+      converstionId: answer?.conversationId,
+    })
+    return () => {
+      port.onMessage.removeListener(listener)
+      port.disconnect()
+    }
+  }, [requestionList, questionIndex, answer?.conversationId])
+
   // * Requery Handler Function
   const requeryHandler = useCallback(() => {
-    requeryMount(requestion, questionIndex)
-      .then(() => {
-        if (inputRef.current) {
-          inputRef.current.value = ''
-        }
-        setQuestionIndex(questionIndex + 1)
-      })
-      .finally(() => setRequestion(''))
-  }, [requestion, questionIndex])
+    if (inputRef.current) {
+      setReQuestionDone(false)
+      const requestion = inputRef.current.value
+      setRequestionList([...requestionList, { requestion, index: questionIndex, answer: null }])
+      inputRef.current.value = ''
+    }
+  }, [requestionList, questionIndex])
+
+  const ReQuestionAnswer = ({ text }: { text: string | undefined }) => {
+    if (!text) return <p className="text-[#b6b8ba] animate-pulse">Answering...</p>
+    return (
+      <ReactMarkdown rehypePlugins={[[rehypeHighlight, { detect: true }]]}>{text}</ReactMarkdown>
+    )
+  }
 
   if (answer) {
     return (
@@ -111,7 +152,24 @@ function ChatGPTQuery(props: Props) {
         <ReactMarkdown rehypePlugins={[[rehypeHighlight, { detect: true }]]}>
           {answer.text}
         </ReactMarkdown>
-        <div className="question-container"></div>
+        <div className="question-container">
+          {requestionList.map((requestion) => (
+            <div key={requestion.index}>
+              <div className="font-bold">{`Q${requestion.index + 1} : ${
+                requestion.requestion
+              }`}</div>
+              {reError ? (
+                <p>
+                  Failed to load response from ChatGPT:
+                  <span className="break-all block">{reError}</span>
+                </p>
+              ) : (
+                <ReQuestionAnswer text={requestion.answer?.text} />
+              )}
+            </div>
+          ))}
+        </div>
+
         {done && (
           <form
             id="requestion"
@@ -122,12 +180,10 @@ function ChatGPTQuery(props: Props) {
             }}
           >
             <input
+              disabled={!reQuestionDone}
               type="text"
               ref={inputRef}
               placeholder="Ask Me Anything"
-              onChange={debounce((e) => {
-                setRequestion(e.target.value)
-              })}
               id="question"
               style={{ width: '100%', padding: '1rem' }}
             />
