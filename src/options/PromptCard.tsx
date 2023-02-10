@@ -51,7 +51,13 @@ function PromptCard(props: {
         </Textarea>
       </Card.Content>
       <Card.Footer>
-        <Button onClick={() => onPromptChange(value)} className="mt-3">
+        <Button
+          width="100%"
+          type="secondary"
+          ghost
+          onClick={() => onPromptChange(value)}
+          className="mt-3"
+        >
           Save Prompt
         </Button>
       </Card.Footer>
