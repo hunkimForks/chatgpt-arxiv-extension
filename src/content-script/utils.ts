@@ -32,3 +32,13 @@ export async function shouldShowRatingTip() {
   await Browser.storage.local.set({ ratingTipShowTimes: ratingTipShowTimes + 1 })
   return ratingTipShowTimes >= 2
 }
+
+export function isValidHttpUrl(string: string) {
+  let url
+  try {
+    url = new URL(string)
+  } catch (_) {
+    return false
+  }
+  return url.protocol === 'http:' || url.protocol === 'https:'
+}

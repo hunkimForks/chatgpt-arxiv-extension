@@ -1,5 +1,6 @@
-import { Input, Modal, Textarea, useToasts } from '@geist-ui/core'
+import { Input, Modal, Text, Textarea, useToasts } from '@geist-ui/core'
 import { useState } from 'preact/hooks'
+import { isValidHttpUrl } from '../content-script/utils'
 
 function AddNewPromptModal(props: {
   visible: boolean
@@ -8,8 +9,21 @@ function AddNewPromptModal(props: {
 }) {
   const { visible, onClose, onSave } = props
   const [site, setSite] = useState<string>('')
+  const [siteError, setSiteError] = useState<boolean>(false)
   const [prompt, setPrompt] = useState<string>('')
+  const [promptError, setPromptError] = useState<boolean>(false)
   const { setToast } = useToasts()
+
+  function validateInput() {
+    const isSiteValid = isValidHttpUrl(site)
+    setSiteError(!isSiteValid)
+    if (!isSiteValid) {
+      return false
+    }
+    const isPromptValid = prompt.trim().length > 0
+    setPromptError(!isPromptValid)
+    return isPromptValid
+  }
 
   return (
     <Modal visible={visible} onClose={onClose}>
@@ -21,7 +35,20 @@ function AddNewPromptModal(props: {
           label="site"
           placeholder="https://arxiv.org/"
           onChange={(e) => setSite(e.target.value)}
-        />
+        >
+          {siteError && (
+            <Text small type="error">
+              Site is not valid
+            </Text>
+          )}
+        </Input>
+        {promptError && (
+          <div className="mt-3 mb-2 px-1">
+            <Text small type="error">
+              Prompt cannot be empty
+            </Text>
+          </div>
+        )}
         <Textarea
           my={1}
           value={prompt}
@@ -29,15 +56,16 @@ function AddNewPromptModal(props: {
           height="10em"
           placeholder="Type prompt here"
           onChange={(event) => setPrompt(event.target.value)}
-        >
-          {prompt}
-        </Textarea>
+        />
       </Modal.Content>
       <Modal.Action passive onClick={() => onClose()}>
         Cancel
       </Modal.Action>
       <Modal.Action
         onClick={() => {
+          if (!validateInput()) {
+            return
+          }
           onSave({ site, prompt })
             .then(() => {
               setSite('')
