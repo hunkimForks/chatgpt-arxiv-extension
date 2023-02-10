@@ -1,4 +1,5 @@
-import { CssBaseline, GeistProvider, Radio, Text, Toggle, useToasts } from '@geist-ui/core'
+import { Button, CssBaseline, GeistProvider, Radio, Text, Toggle, useToasts } from '@geist-ui/core'
+import { Plus } from '@geist-ui/icons'
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks'
 import '../base.css'
 import {
@@ -13,6 +14,7 @@ import {
 } from '../config'
 import logo from '../logo.png'
 import { detectSystemColorScheme, getExtensionVersion } from '../utils'
+import AddNewPromptModal from './AddNewPromptModal'
 import PromptCard from './PromptCard'
 import ProviderSelect from './ProviderSelect'
 
@@ -21,6 +23,8 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
   const [language, setLanguage] = useState<Language>(Language.Auto)
   const [prompt, setPrompt] = useState<string>(Prompt)
   const [promptOverrides, setPromptOverrides] = useState<SitePrompt[]>([])
+  const [modalVisible, setModalVisible] = useState<boolean>(false)
+
   const { setToast } = useToasts()
 
   useEffect(() => {
@@ -30,6 +34,10 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
       setPrompt(config.prompt)
       setPromptOverrides(config.promptOverrides)
     })
+  }, [])
+
+  const closeModalHandler = useCallback(() => {
+    setModalVisible(false)
   }, [])
 
   const onTriggerModeChange = useCallback(
@@ -120,6 +128,25 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
             </div>
           )
         })}
+
+        <Button mt={1} type="secondary" width={'100%'} onClick={() => setModalVisible(true)}>
+          <Plus size={16} className="mx-2" />
+          Add Prompt
+        </Button>
+
+        <AddNewPromptModal
+          visible={modalVisible}
+          onClose={closeModalHandler}
+          onSave={({ site, prompt }) => {
+            const newOverride: SitePrompt = {
+              site,
+              prompt,
+            }
+            const newOverrides = promptOverrides.concat([newOverride])
+            setPromptOverrides(newOverrides)
+            return updateUserConfig({ promptOverrides: newOverrides })
+          }}
+        />
 
         <Text h3 className="mt-8">
           Trigger Mode
