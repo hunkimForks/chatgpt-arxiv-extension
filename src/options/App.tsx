@@ -113,9 +113,8 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
                     site: override.site,
                     prompt: newPrompt,
                   }
-                  const newOverrides = promptOverrides
-                    .filter((o) => o.site != override.site)
-                    .splice(index, 0, newOverride)
+                  const newOverrides = promptOverrides.filter((o) => o.site !== override.site)
+                  newOverrides.splice(index, 0, newOverride)
                   setPromptOverrides(newOverrides)
                   return updateUserConfig({ promptOverrides: newOverrides })
                 }}
