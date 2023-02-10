@@ -5,6 +5,7 @@ import ChatGPTQuery, { QueryStatus } from './ChatGPTQuery'
 
 interface Props {
   question: string
+  promptSource: string
   triggerMode: TriggerMode
   onStatusChange?: (status: QueryStatus) => void
 }
@@ -13,10 +14,10 @@ function ChatGPTCard(props: Props) {
   const [triggered, setTriggered] = useState(false)
 
   if (props.triggerMode === TriggerMode.Always) {
-    return <ChatGPTQuery question={props.question} onStatusChange={props.onStatusChange} />
+    return <ChatGPTQuery {...props} />
   }
   if (triggered) {
-    return <ChatGPTQuery question={props.question} onStatusChange={props.onStatusChange} />
+    return <ChatGPTQuery {...props} />
   }
   return (
     <p className="icon-and-text cursor-pointer" onClick={() => setTriggered(true)}>

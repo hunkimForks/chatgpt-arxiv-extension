@@ -7,7 +7,7 @@ import { config, SearchEngine } from './search-engine-configs'
 import './styles.scss'
 import { getPossibleElementByQuerySelector } from './utils'
 
-async function mount(question: string, siteConfig: SearchEngine) {
+async function mount(question: string, promptSource: string, siteConfig: SearchEngine) {
   const container = document.createElement('div')
   container.className = 'chat-gpt-container'
 
@@ -36,7 +36,11 @@ async function mount(question: string, siteConfig: SearchEngine) {
   }
 
   render(
-    <ChatGPTContainer question={question} triggerMode={userConfig.triggerMode || 'always'} />,
+    <ChatGPTContainer
+      question={question}
+      promptSource={promptSource}
+      triggerMode={userConfig.triggerMode || 'always'}
+    />,
     container,
   )
 }
@@ -58,7 +62,13 @@ async function run() {
       console.log('Body: ' + bodyInnerText)
       const userConfig = await getUserConfig()
 
-      mount(userConfig.prompt + bodyInnerText, siteConfig)
+      const found = userConfig.promptOverrides.find(
+        (override) => new URL(override.site).hostname === location.hostname,
+      )
+      const question = found?.prompt ?? userConfig.prompt
+      const promptSource = found?.site ?? 'default'
+
+      mount(question + bodyInnerText, promptSource, siteConfig)
     }
   }
 }

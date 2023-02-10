@@ -13,6 +13,7 @@ export type QueryStatus = 'success' | 'error' | undefined
 
 interface Props {
   question: string
+  promptSource: string
   onStatusChange?: (status: QueryStatus) => void
 }
 
@@ -85,6 +86,7 @@ function ChatGPTQuery(props: Props) {
           <span className="cursor-pointer leading-[0]" onClick={openOptionsPage}>
             <GearIcon size={14} />
           </span>
+          <span className="mx-2 text-base text-gray-500">{`"${props.promptSource}" prompt is used`}</span>
           <ChatGPTFeedback
             messageId={answer.messageId}
             conversationId={answer.conversationId}
