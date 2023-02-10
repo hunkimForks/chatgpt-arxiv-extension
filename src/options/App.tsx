@@ -79,7 +79,7 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
           </a>
         </div>
       </nav>
-      <main className="w-[500px] mx-auto mt-14">
+      <main className="w-[600px] mx-auto mt-14">
         <Text h2>Options</Text>
         <Text h3 className="mt-5">
           Prompt
