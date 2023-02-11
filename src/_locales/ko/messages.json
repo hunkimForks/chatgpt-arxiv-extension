@@ -3,10 +3,6 @@
     "message": "ArxivGPT"
   },
   "appDesc": {
-<<<<<<< HEAD
     "message": "ChatGPT로 Arxiv논문의 인사이트를 제공합니다."
-=======
-    "message": "ChatGPT의 응답과 검색 엔진 결과를 함께 표시합니다"
->>>>>>> bfca9c838be703ac33a2180c690a48d9e6f51745
   }
 }
