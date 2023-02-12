@@ -1,8 +1,8 @@
 {
   "appName": {
-    "message": "ChatGPT for Google"
+    "message": "ArxivGPT"
   },
   "appDesc": {
-    "message": "ChatGPT Antworten neben den Suchmaschinenergebnissen anzeigen"
+    "message": "Fassen Sie ein arXiv-Papier zusammen und liefern Sie wichtige Erkenntnisse."
   }
 }
