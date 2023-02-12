@@ -36,3 +36,4 @@ Enable "Allow access to search page results" in the extension management page
 ## Credit
 
 This project is inspired by [ZohaibAhmed/ChatGPT-Google](https://github.com/ZohaibAhmed/ChatGPT-Google) and https://github.com/wong2/chatgpt-google-extension
+This project is inspired by [ZohaibAhmed/ChatGPT-Google](https://github.com/ZohaibAhmed/ChatGPT-Google) and wong2/chatgpt-google-extension
