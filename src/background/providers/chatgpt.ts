@@ -78,7 +78,7 @@ export class ChatGPTProvider implements Provider {
     }
 
     const modelName = await this.getModelName()
-    console.debug('Using model:', modelName)
+    console.log('Using model:', modelName, params.conversationId, params.parentMessageId)
 
     await fetchSSE('https://chat.openai.com/backend-api/conversation', {
       method: 'POST',
@@ -100,7 +100,8 @@ export class ChatGPTProvider implements Provider {
           },
         ],
         model: modelName,
-        parent_message_id: uuidv4(),
+        parent_message_id: params.parentMessageId || uuidv4(),
+        conversationId: params.conversationId,
       }),
       onMessage(message: string) {
         console.debug('sse message', message)
@@ -116,7 +117,7 @@ export class ChatGPTProvider implements Provider {
           console.error(err)
           return
         }
-        const text = data.message?.content?.parts?.[0]
+        const text = data.message?.content?.parts?.[0] + '✏'
         if (text) {
           conversationId = data.conversation_id
           params.onEvent({
@@ -125,6 +126,7 @@ export class ChatGPTProvider implements Provider {
               text,
               messageId: data.message.id,
               conversationId: data.conversation_id,
+              parentMessageId: data.parent_message_id,
             },
           })
         }

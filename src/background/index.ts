@@ -4,7 +4,12 @@ import { ChatGPTProvider, getChatGPTAccessToken, sendMessageFeedback } from './p
 import { OpenAIProvider } from './providers/openai'
 import { Provider } from './types'
 
-async function generateAnswers(port: Browser.Runtime.Port, question: string) {
+async function generateAnswers(
+  port: Browser.Runtime.Port,
+  question: string,
+  conversationId: string | undefined,
+  parentMessageId: string | undefined,
+) {
   const providerConfigs = await getProviderConfigs()
 
   let provider: Provider
@@ -34,6 +39,8 @@ async function generateAnswers(port: Browser.Runtime.Port, question: string) {
       }
       port.postMessage(event.data)
     },
+    conversationId: conversationId,
+    parentMessageId: parentMessageId,
   })
 }
 
@@ -41,7 +48,7 @@ Browser.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener(async (msg) => {
     console.debug('received msg', msg)
     try {
-      await generateAnswers(port, msg.question)
+      await generateAnswers(port, msg.question, msg.conversationId, msg.parentMessageId)
     } catch (err: any) {
       console.error(err)
       port.postMessage({ error: err.message })

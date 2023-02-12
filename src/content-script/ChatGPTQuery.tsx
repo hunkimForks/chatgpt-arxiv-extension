@@ -111,13 +111,14 @@ function ChatGPTQuery(props: Props) {
     port.onMessage.addListener(listener)
     port.postMessage({
       question: requestionList[questionIndex].requestion,
-      converstionId: answer?.conversationId,
+      conversationId: answer?.conversationId,
+      parentMessageId: answer?.parentMessageId,
     })
     return () => {
       port.onMessage.removeListener(listener)
       port.disconnect()
     }
-  }, [requestionList, questionIndex, answer?.conversationId])
+  }, [requestionList, questionIndex, answer?.conversationId, answer?.parentMessageId])
 
   // * Requery Handler Function
   const requeryHandler = useCallback(() => {

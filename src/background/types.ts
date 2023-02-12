@@ -13,6 +13,8 @@ export interface GenerateAnswerParams {
   prompt: string
   onEvent: (event: Event) => void
   signal?: AbortSignal
+  conversationId?: string
+  parentMessageId?: string
 }
 
 export interface Provider {
