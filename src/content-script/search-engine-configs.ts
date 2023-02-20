@@ -37,4 +37,16 @@ export const config: Record<string, SearchEngine> = {
     sidebarContainerQuery: ['div.u-pb-1.stats-document-abstract-publishedIn'],
     appendContainerQuery: [],
   },
+  eprint: {
+    inputQuery: ["input[name='query']"],
+    bodyQuery: ['div[class="col-md-7 col-lg-8 pe-md-5"]'],
+    sidebarContainerQuery: ['p[class="mt-4"]'],
+    appendContainerQuery: [],
+  },
+  acm: {
+    inputQuery: ["input[name='query']"],
+    bodyQuery: ['div[class="abstractSection abstractInFull"]'],
+    sidebarContainerQuery: ['p[class="explanation__text"]'],
+    appendContainerQuery: [],
+  },
 }
