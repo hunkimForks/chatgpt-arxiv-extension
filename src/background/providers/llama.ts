@@ -19,7 +19,6 @@ export class LLAMAProvider implements Provider {
         Authorization: `Bearer ${this.token}`,
       },
       body: JSON.stringify({
-        // 'model': 'togethercomputer/llama-2-13b-chat',
         model: `${this.model}`,
         max_tokens: 512,
         prompt: params.prompt,
@@ -44,7 +43,6 @@ export class LLAMAProvider implements Provider {
         }
         const text = data.output?.choices?.[0]?.text + '✏'
         if (text) {
-          // conversationId = data.conversation_id
           params.onEvent({
             type: 'answer',
             data: {

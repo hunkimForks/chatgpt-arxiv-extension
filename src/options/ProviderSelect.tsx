@@ -10,10 +10,8 @@ interface ConfigProps {
 }
 
 async function loadModels(): Promise<string[]> {
-  console.log('load models')
   const configs = await fetchExtensionConfigs()
   return configs.openai_model_names
-  // return ['aaaa', 'bbb']
 }
 
 const ConfigPanel: FC<ConfigProps> = ({ config, models }) => {
