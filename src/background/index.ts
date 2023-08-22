@@ -50,6 +50,7 @@ async function generateAnswers(
 
 Browser.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener(async (msg) => {
+    console.debug('received msg', msg)
     try {
       await generateAnswers(port, msg.question, msg.conversationId, msg.parentMessageId)
     } catch (err: any) {
