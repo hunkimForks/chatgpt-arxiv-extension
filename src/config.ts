@@ -69,6 +69,7 @@ export async function updateUserConfig(updates: Partial<UserConfig>) {
 export enum ProviderType {
   ChatGPT = 'chatgpt',
   GPT3 = 'gpt3',
+  LLAMA = 'llama',
 }
 
 interface GPT3ProviderConfig {
@@ -80,17 +81,21 @@ export interface ProviderConfigs {
   provider: ProviderType
   configs: {
     [ProviderType.GPT3]: GPT3ProviderConfig | undefined
+    [ProviderType.LLAMA]: GPT3ProviderConfig | undefined
   }
 }
 
 export async function getProviderConfigs(): Promise<ProviderConfigs> {
   const { provider = ProviderType.ChatGPT } = await Browser.storage.local.get('provider')
-  const configKey = `provider:${ProviderType.GPT3}`
-  const result = await Browser.storage.local.get(configKey)
+  const configKeyGPT = `provider:${ProviderType.GPT3}`
+  const configKeyLLAMA = `provider:${ProviderType.LLAMA}`
+  const resultGPT = await Browser.storage.local.get(configKeyGPT)
+  const resultLLAMA = await Browser.storage.local.get(configKeyLLAMA)
   return {
     provider,
     configs: {
-      [ProviderType.GPT3]: result[configKey],
+      [ProviderType.GPT3]: resultGPT[configKeyGPT],
+      [ProviderType.LLAMA]: resultLLAMA[configKeyLLAMA],
     },
   }
 }
@@ -102,5 +107,6 @@ export async function saveProviderConfigs(
   return Browser.storage.local.set({
     provider,
     [`provider:${ProviderType.GPT3}`]: configs[ProviderType.GPT3],
+    [`provider:${ProviderType.LLAMA}`]: configs[ProviderType.LLAMA],
   })
 }

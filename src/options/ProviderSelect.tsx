@@ -10,8 +10,10 @@ interface ConfigProps {
 }
 
 async function loadModels(): Promise<string[]> {
+  console.log('load models')
   const configs = await fetchExtensionConfigs()
   return configs.openai_model_names
+  // return ['aaaa', 'bbb']
 }
 
 const ConfigPanel: FC<ConfigProps> = ({ config, models }) => {
@@ -19,6 +21,12 @@ const ConfigPanel: FC<ConfigProps> = ({ config, models }) => {
   const { bindings: apiKeyBindings } = useInput(config.configs[ProviderType.GPT3]?.apiKey ?? '')
   const [model, setModel] = useState(config.configs[ProviderType.GPT3]?.model ?? models[0])
   const { setToast } = useToasts()
+  const { bindings: llamaApiModelBindings } = useInput(
+    config.configs[ProviderType.LLAMA]?.model ?? '',
+  )
+  const { bindings: llamaApiKeyBindings } = useInput(
+    config.configs[ProviderType.LLAMA]?.apiKey ?? '',
+  )
 
   const save = useCallback(async () => {
     if (tab === ProviderType.GPT3) {
@@ -31,10 +39,26 @@ const ConfigPanel: FC<ConfigProps> = ({ config, models }) => {
         return
       }
     }
+
+    if (tab === ProviderType.LLAMA) {
+      if (!llamaApiKeyBindings.value) {
+        alert('Please enter your LLAMA API key')
+        return
+      }
+      if (!llamaApiModelBindings) {
+        alert('Please enter your LLAMA model')
+        return
+      }
+    }
+
     await saveProviderConfigs(tab, {
       [ProviderType.GPT3]: {
         model,
         apiKey: apiKeyBindings.value,
+      },
+      [ProviderType.LLAMA]: {
+        model: llamaApiModelBindings.value,
+        apiKey: llamaApiKeyBindings.value,
       },
     })
     setToast({ text: 'Changes saved', type: 'success' })
@@ -74,6 +98,29 @@ const ConfigPanel: FC<ConfigProps> = ({ config, models }) => {
                 target="_blank"
                 rel="noreferrer"
               >
+                here
+              </a>
+            </span>
+          </div>
+        </Tabs.Item>
+        <Tabs.Item label="LLAMA API" value={ProviderType.LLAMA}>
+          <div className="flex flex-col gap-2">
+            <span>
+              LLAMA official API, more stable,{' '}
+              <span className="font-semibold">charge by usage</span>
+            </span>
+            <div className="flex flex-row gap-2">
+              <Input
+                htmlType="username"
+                label="API Model"
+                scale={1 / 3}
+                {...llamaApiModelBindings}
+              />
+              <Input htmlType="password" label="API key" scale={2 / 3} {...llamaApiKeyBindings} />
+            </div>
+            <span className="italic text-xs">
+              You can find or create your API key{' '}
+              <a href="https://api.together.xyz/settings/api-keys" target="_blank" rel="noreferrer">
                 here
               </a>
             </span>

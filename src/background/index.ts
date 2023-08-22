@@ -1,6 +1,7 @@
 import Browser from 'webextension-polyfill'
 import { getProviderConfigs, ProviderType } from '../config'
 import { ChatGPTProvider, getChatGPTAccessToken, sendMessageFeedback } from './providers/chatgpt'
+import { LLAMAProvider } from './providers/llama'
 import { OpenAIProvider } from './providers/openai'
 import { Provider } from './types'
 
@@ -19,6 +20,9 @@ async function generateAnswers(
   } else if (providerConfigs.provider === ProviderType.GPT3) {
     const { apiKey, model } = providerConfigs.configs[ProviderType.GPT3]!
     provider = new OpenAIProvider(apiKey, model)
+  } else if (providerConfigs.provider === ProviderType.LLAMA) {
+    const { apiKey, model } = providerConfigs.configs[ProviderType.LLAMA]!
+    provider = new LLAMAProvider(apiKey, model)
   } else {
     throw new Error(`Unknown provider ${providerConfigs.provider}`)
   }
@@ -46,7 +50,6 @@ async function generateAnswers(
 
 Browser.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener(async (msg) => {
-    console.debug('received msg', msg)
     try {
       await generateAnswers(port, msg.question, msg.conversationId, msg.parentMessageId)
     } catch (err: any) {
