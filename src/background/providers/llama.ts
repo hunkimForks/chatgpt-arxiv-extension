@@ -20,7 +20,7 @@ export class LLAMAProvider implements Provider {
       },
       body: JSON.stringify({
         model: `${this.model}`,
-        max_tokens: 512,
+        max_tokens: 2048,
         prompt: params.prompt,
         request_type: 'language-model-inference',
         temperature: 0.7,
@@ -53,6 +53,7 @@ export class LLAMAProvider implements Provider {
             },
           })
         }
+        params.onEvent({ type: 'done' })
       },
     })
     return {}
