@@ -22,16 +22,3 @@ export async function fetchSSE(
     parser.feed(str)
   }
 }
-
-export async function fetchSimple(
-  resource: string,
-  options: RequestInit & { onMessage: (message: string) => void },
-) {
-  const { onMessage, ...fetchOptions } = options
-  const resp = await fetch(resource, fetchOptions)
-  if (!resp.ok) {
-    const error = await resp.json().catch(() => ({}))
-    throw new Error(!isEmpty(error) ? JSON.stringify(error) : `${resp.status} ${resp.statusText}`)
-  }
-  resp.text().then((t) => onMessage(t))
-}

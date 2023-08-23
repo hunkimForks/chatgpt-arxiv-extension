@@ -1,4 +1,4 @@
-import { fetchSimple } from '../fetch-sse'
+import { fetchSSE } from '../fetch-sse'
 import { GenerateAnswerParams, Provider } from '../types'
 
 export class LLAMAProvider implements Provider {
@@ -8,11 +8,12 @@ export class LLAMAProvider implements Provider {
   }
 
   private buildPrompt(prompt: string): string {
-    return prompt
+    return '"' + prompt + '"'
   }
 
   async generateAnswer(params: GenerateAnswerParams) {
-    await fetchSimple('https://api.together.xyz/inference', {
+    let result = ''
+    await fetchSSE('https://api.together.xyz/inference', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -21,14 +22,20 @@ export class LLAMAProvider implements Provider {
       body: JSON.stringify({
         model: `${this.model}`,
         max_tokens: 2048,
-        prompt: params.prompt,
+        prompt: this.buildPrompt(params.prompt),
         request_type: 'language-model-inference',
         temperature: 0.7,
         top_p: 0.7,
         top_k: 50,
         repetition_penalty: 1,
+        stream_tokens: true,
       }),
       onMessage(message: string) {
+        if (message === '[DONE]') {
+          params.onEvent({ type: 'done' })
+          return
+        }
+
         let data
         try {
           data = JSON.parse(message)
@@ -37,23 +44,18 @@ export class LLAMAProvider implements Provider {
           return
         }
 
-        if (data.status != 'finished') {
-          console.error('error status', data.status)
-          return
-        }
-        const text = data.output?.choices?.[0]?.text + '✏'
+        const text = data.choices?.[0]?.text
         if (text) {
+          result += text
           params.onEvent({
             type: 'answer',
             data: {
-              text,
+              text: result,
               messageId: '',
               conversationId: '',
-              parentMessageId: '',
             },
           })
         }
-        params.onEvent({ type: 'done' })
       },
     })
     return {}
