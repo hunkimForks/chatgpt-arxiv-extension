@@ -47,14 +47,15 @@ export class OpenAIProvider implements Provider {
           data = JSON.parse(message)
           console.log(data)
           const text = data.choices[0]?.delta?.content
-          if (text === '<|im_end|>' || text === '<|im_sep|>') {
+          if (text === '<|im_end|>' || text === '<|im_sep|>' || text === undefined) {
+            params.onEvent({ type: 'done' })
             return
           }
           result += text
           params.onEvent({
             type: 'answer',
             data: {
-              text: result,
+              text: result + '✏',
               messageId: data.id,
               conversationId: data.id,
             },
