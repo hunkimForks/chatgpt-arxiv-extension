@@ -5,10 +5,11 @@ import { useCallback, useState } from 'preact/hooks'
 function PromptCard(props: {
   header: string
   prompt: string
+  language: string
   onSave: (newPrompt: string) => Promise<void>
   onDismiss?: () => Promise<void>
 }) {
-  const { header, prompt, onSave, onDismiss } = props
+  const { header, prompt, language, onSave, onDismiss } = props
   const [value, setValue] = useState<string>(prompt)
   const { setToast } = useToasts()
 

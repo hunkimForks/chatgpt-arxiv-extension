@@ -11,7 +11,8 @@ interface ConfigProps {
 
 async function loadModels(): Promise<string[]> {
   const configs = await fetchExtensionConfigs()
-  return configs.openai_model_names
+  return ['solar-1-mini-chat']
+  //return configs.openai_model_names
 }
 
 const ConfigPanel: FC<ConfigProps> = ({ config, models }) => {
@@ -43,13 +44,10 @@ const ConfigPanel: FC<ConfigProps> = ({ config, models }) => {
   return (
     <div className="flex flex-col gap-3">
       <Tabs value={tab} onChange={(v) => setTab(v as ProviderType)}>
-        <Tabs.Item label="ChatGPT webapp" value={ProviderType.ChatGPT}>
-          The API that powers ChatGPT webapp, free, but sometimes unstable
-        </Tabs.Item>
-        <Tabs.Item label="OpenAI API" value={ProviderType.GPT3}>
+        <Tabs.Item label="Solar API" value={ProviderType.GPT3}>
           <div className="flex flex-col gap-2">
             <span>
-              OpenAI official API, more stable,{' '}
+              Solar official API, more stable,{' '}
               <span className="font-semibold">charge by usage</span>
             </span>
             <div className="flex flex-row gap-2">
@@ -69,11 +67,7 @@ const ConfigPanel: FC<ConfigProps> = ({ config, models }) => {
             </div>
             <span className="italic text-xs">
               You can find or create your API key{' '}
-              <a
-                href="https://platform.openai.com/account/api-keys"
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a href="https://console.upstage.ai" target="_blank" rel="noreferrer">
                 here
               </a>
             </span>

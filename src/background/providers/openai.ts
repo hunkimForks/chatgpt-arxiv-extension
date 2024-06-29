@@ -7,16 +7,13 @@ export class OpenAIProvider implements Provider {
     this.model = model
   }
 
-  private buildPrompt(prompt: string): string {
-    if (this.model.startsWith('text-chat-davinci')) {
-      return `Respond conversationally.<|im_end|>\n\nUser: ${prompt}<|im_sep|>\nChatGPT:`
-    }
+  private buildMessages(prompt: string): string {
     return prompt
   }
 
   async generateAnswer(params: GenerateAnswerParams) {
     let result = ''
-    await fetchSSE('https://api.openai.com/v1/completions', {
+    await fetchSSE('https://api.upstage.ai/v1/solar/chat/completions', {
       method: 'POST',
       signal: params.signal,
       headers: {
@@ -25,9 +22,19 @@ export class OpenAIProvider implements Provider {
       },
       body: JSON.stringify({
         model: this.model,
-        prompt: this.buildPrompt(params.prompt),
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are excellent researchers. Please privde information about research paper.',
+          },
+          {
+            role: 'user',
+            content: this.buildMessages(params.prompt),
+          },
+        ],
         stream: true,
-        max_tokens: 2048,
+        max_tokens: 4096,
       }),
       onMessage(message) {
         console.debug('sse message', message)
@@ -38,7 +45,8 @@ export class OpenAIProvider implements Provider {
         let data
         try {
           data = JSON.parse(message)
-          const text = data.choices[0].text
+          console.log(data)
+          const text = data.choices[0]?.delta?.content
           if (text === '<|im_end|>' || text === '<|im_sep|>') {
             return
           }
