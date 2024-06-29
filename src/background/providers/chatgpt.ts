@@ -101,7 +101,7 @@ export class ChatGPTProvider implements Provider {
         ],
         model: modelName,
         parent_message_id: params.parentMessageId || uuidv4(),
-        conversationId: params.conversationId,
+        conversation_id: params.conversationId,
       }),
       onMessage(message: string) {
         console.debug('sse message', message)

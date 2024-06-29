@@ -23,6 +23,10 @@ interface Requestion {
   answer: Answer | null
 }
 
+interface ReQuestionAnswerProps {
+  answerText: string | undefined;
+}
+
 function ChatGPTQuery(props: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [answer, setAnswer] = useState<Answer | null>(null)
@@ -35,6 +39,7 @@ function ChatGPTQuery(props: Props) {
   const [reQuestionDone, setReQuestionDone] = useState(false)
   const [requestionList, setRequestionList] = useState<Requestion[]>([])
   const [questionIndex, setQuestionIndex] = useState(0)
+  const [reQuestionAnswerText, setReQuestionAnswerText] = useState<string | undefined>();
 
   useEffect(() => {
     props.onStatusChange?.(status)
@@ -100,6 +105,8 @@ function ChatGPTQuery(props: Props) {
           const requestionListValue = requestionList
           requestionListValue[questionIndex].answer = msg
           setRequestionList(requestionListValue)
+          const answerText = requestionList[questionIndex]?.answer?.text;
+          setReQuestionAnswerText(answerText);
         } else if (msg.event === 'DONE') {
           setReQuestionDone(true)
           setQuestionIndex(questionIndex + 1)
@@ -112,13 +119,13 @@ function ChatGPTQuery(props: Props) {
     port.postMessage({
       question: requestionList[questionIndex].requestion,
       conversationId: answer?.conversationId,
-      parentMessageId: answer?.parentMessageId,
+      parentMessageId: (questionIndex == 0 ? (answer?.messageId) : (requestionList[questionIndex - 1].answer?.messageId)),
     })
     return () => {
       port.onMessage.removeListener(listener)
       port.disconnect()
     }
-  }, [requestionList, questionIndex, answer?.conversationId, answer?.parentMessageId])
+  }, [requestionList, questionIndex, answer?.conversationId, answer?.messageId])
 
   // * Requery Handler Function
   const requeryHandler = useCallback(() => {
@@ -130,12 +137,23 @@ function ChatGPTQuery(props: Props) {
     }
   }, [requestionList, questionIndex])
 
-  const ReQuestionAnswer = ({ text }: { text: string | undefined }) => {
+  const ReQuestionAnswerFixed = ({ text }: { text: string | undefined }) => {
     if (!text) return <p className="text-[#b6b8ba] animate-pulse">Answering...</p>
     return (
       <ReactMarkdown rehypePlugins={[[rehypeHighlight, { detect: true }]]}>{text}</ReactMarkdown>
     )
   }
+
+  const ReQuestionAnswer = ({ answerText }: ReQuestionAnswerProps) => {
+    if (!answerText || requestionList[requestionList.length-1]?.answer?.text == undefined) {
+      return <p className="text-[#b6b8ba] animate-pulse">Answering...</p>;
+    }
+    return (
+      <ReactMarkdown rehypePlugins={[[rehypeHighlight, { detect: true }]]}>
+        {answerText}
+      </ReactMarkdown>
+    );
+  };
 
   if (answer) {
     return (
@@ -167,7 +185,9 @@ function ChatGPTQuery(props: Props) {
                   <span className="break-all block">{reError}</span>
                 </p>
               ) : (
-                <ReQuestionAnswer text={requestion.answer?.text} />
+                (requestion.index < requestionList.length - 1) ?
+                (<ReQuestionAnswerFixed text={requestion.answer?.text} />)
+                :(<ReQuestionAnswer answerText={reQuestionAnswerText} />)
               )}
             </div>
           ))}
