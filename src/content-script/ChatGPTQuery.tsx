@@ -98,8 +98,16 @@ function ChatGPTQuery(props: Props) {
     }
   }, [props.question, status])
 
-  const openOptionsPage = useCallback(() => {
+  const _openOptionsPage = useCallback(() => {
     Browser.runtime.sendMessage({ type: 'OPEN_OPTIONS_PAGE' })
+  }, [Browser.runtime])
+
+  const openOptionsPage = useCallback(() => {
+    if (chrome.runtime && chrome.runtime.openOptionsPage) {
+      chrome.runtime.openOptionsPage()
+    } else {
+      window.open(chrome.runtime.getURL('options.html'))
+    }
   }, [])
 
   // requestion
