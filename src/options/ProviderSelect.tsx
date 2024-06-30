@@ -24,7 +24,7 @@ const ConfigPanel: FC<ConfigProps> = ({ config, models }) => {
   const save = useCallback(async () => {
     if (tab === ProviderType.GPT3) {
       if (!apiKeyBindings.value) {
-        alert('Please enter your OpenAI API key')
+        alert('Please enter your Solar API key. Get from https://console.upstage.ai')
         return
       }
       if (!model || !models.includes(model)) {

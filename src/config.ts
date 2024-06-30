@@ -67,7 +67,6 @@ export async function updateUserConfig(updates: Partial<UserConfig>) {
 }
 
 export enum ProviderType {
-  ChatGPT = 'chatgpt',
   GPT3 = 'gpt3',
 }
 
@@ -84,7 +83,7 @@ export interface ProviderConfigs {
 }
 
 export async function getProviderConfigs(): Promise<ProviderConfigs> {
-  const { provider = ProviderType.ChatGPT } = await Browser.storage.local.get('provider')
+  const { provider = ProviderType.GPT3 } = await Browser.storage.local.get('provider')
   const configKey = `provider:${ProviderType.GPT3}`
   const result = await Browser.storage.local.get(configKey)
   return {

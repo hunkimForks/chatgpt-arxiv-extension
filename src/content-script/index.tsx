@@ -79,7 +79,7 @@ const siteConfig = config[siteName]
 
 async function run() {
   const searchInput = getPossibleElementByQuerySelector<HTMLInputElement>(siteConfig.inputQuery)
-  console.debug('Try to Mount ChatGPT on', siteName)
+  console.log('Try to Mount ChatGPT on', siteName)
 
   if (siteConfig.bodyQuery) {
     const bodyElement = getPossibleElementByQuerySelector(siteConfig.bodyQuery)

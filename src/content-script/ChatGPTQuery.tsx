@@ -7,7 +7,7 @@ import Browser from 'webextension-polyfill'
 import { captureEvent } from '../analytics'
 import { Answer } from '../messaging'
 import ChatGPTFeedback from './ChatGPTFeedback'
-import { isBraveBrowser, shouldShowRatingTip } from './utils.js'
+import { shouldShowRatingTip } from './utils.js'
 
 export type QueryStatus = 'success' | 'error' | undefined
 
@@ -24,7 +24,7 @@ interface Requestion {
 }
 
 interface ReQuestionAnswerProps {
-  answerText: string | undefined;
+  answerText: string | undefined
 }
 
 function ChatGPTQuery(props: Props) {
@@ -39,7 +39,8 @@ function ChatGPTQuery(props: Props) {
   const [reQuestionDone, setReQuestionDone] = useState(false)
   const [requestionList, setRequestionList] = useState<Requestion[]>([])
   const [questionIndex, setQuestionIndex] = useState(0)
-  const [reQuestionAnswerText, setReQuestionAnswerText] = useState<string | undefined>();
+  const [reQuestionAnswerText, setReQuestionAnswerText] = useState<string | undefined>()
+  const [previousMessages, setPreviousMeessages] = useState<object[]>([])
 
   useEffect(() => {
     props.onStatusChange?.(status)
@@ -51,6 +52,12 @@ function ChatGPTQuery(props: Props) {
       if (msg.text) {
         setAnswer(msg)
         setStatus('success')
+
+        // set previous message
+        setPreviousMeessages([
+          { role: 'user', content: props.question },
+          { role: 'assistant', content: msg.text },
+        ])
       } else if (msg.error) {
         setError(msg.error)
         setStatus('error')
@@ -105,8 +112,14 @@ function ChatGPTQuery(props: Props) {
           const requestionListValue = requestionList
           requestionListValue[questionIndex].answer = msg
           setRequestionList(requestionListValue)
-          const answerText = requestionList[questionIndex]?.answer?.text;
-          setReQuestionAnswerText(answerText);
+          const answerText = requestionList[questionIndex]?.answer?.text
+          setReQuestionAnswerText(answerText)
+
+          setPreviousMeessages([
+            ...previousMessages,
+            { role: 'user', content: requestionList[questionIndex].requestion },
+            { role: 'assistant', content: answerText },
+          ])
         } else if (msg.event === 'DONE') {
           setReQuestionDone(true)
           setQuestionIndex(questionIndex + 1)
@@ -119,7 +132,11 @@ function ChatGPTQuery(props: Props) {
     port.postMessage({
       question: requestionList[questionIndex].requestion,
       conversationId: answer?.conversationId,
-      parentMessageId: (questionIndex == 0 ? (answer?.messageId) : (requestionList[questionIndex - 1].answer?.messageId)),
+      parentMessageId:
+        questionIndex == 0
+          ? answer?.messageId
+          : requestionList[questionIndex - 1].answer?.messageId,
+      previousMessages: previousMessages,
     })
     return () => {
       port.onMessage.removeListener(listener)
@@ -145,15 +162,15 @@ function ChatGPTQuery(props: Props) {
   }
 
   const ReQuestionAnswer = ({ answerText }: ReQuestionAnswerProps) => {
-    if (!answerText || requestionList[requestionList.length-1]?.answer?.text == undefined) {
-      return <p className="text-[#b6b8ba] animate-pulse">Answering...</p>;
+    if (!answerText || requestionList[requestionList.length - 1]?.answer?.text == undefined) {
+      return <p className="text-[#b6b8ba] animate-pulse">Answering...</p>
     }
     return (
       <ReactMarkdown rehypePlugins={[[rehypeHighlight, { detect: true }]]}>
         {answerText}
       </ReactMarkdown>
-    );
-  };
+    )
+  }
 
   if (answer) {
     return (
@@ -181,13 +198,13 @@ function ChatGPTQuery(props: Props) {
               }`}</div>
               {reError ? (
                 <p>
-                  Failed to load response from ChatGPT:
+                  Failed to load response from Solar.
                   <span className="break-all block">{reError}</span>
                 </p>
+              ) : requestion.index < requestionList.length - 1 ? (
+                <ReQuestionAnswerFixed text={requestion.answer?.text} />
               ) : (
-                (requestion.index < requestionList.length - 1) ?
-                (<ReQuestionAnswerFixed text={requestion.answer?.text} />)
-                :(<ReQuestionAnswer answerText={reQuestionAnswerText} />)
+                <ReQuestionAnswer answerText={reQuestionAnswerText} />
               )}
             </div>
           ))}
@@ -206,7 +223,7 @@ function ChatGPTQuery(props: Props) {
               disabled={!reQuestionDone}
               type="text"
               ref={inputRef}
-              placeholder="Ask Me Anything"
+              placeholder="Ask Additianal Question"
               id="question"
               style={{ width: '100%', padding: '1rem' }}
             />
@@ -223,46 +240,21 @@ function ChatGPTQuery(props: Props) {
     )
   }
 
-  if (error === 'UNAUTHORIZED' || error === 'CLOUDFLARE') {
-    return (
-      <p>
-        Please login and pass Cloudflare check at{' '}
-        <a href="https://chat.openai.com" target="_blank" rel="noreferrer">
-          chat.openai.com
-        </a>
-        {retry > 0 &&
-          (() => {
-            if (isBraveBrowser()) {
-              return (
-                <span className="block mt-2">
-                  Still not working? Follow{' '}
-                  <a href="https://github.com/wong2/chat-gpt-google-extension#troubleshooting">
-                    Brave Troubleshooting
-                  </a>
-                </span>
-              )
-            } else {
-              return (
-                <span className="italic block mt-2 text-xs">
-                  OpenAI requires passing a security check every once in a while. If this keeps
-                  happening, change AI provider to OpenAI API in the extension options.
-                </span>
-              )
-            }
-          })()}
-      </p>
-    )
-  }
   if (error) {
+    // Set solar API key
     return (
       <p>
-        Failed to load response from ChatGPT:
-        <span className="break-all block">{error}</span>
+        Please set your Solar API key in the extension options.
+        <span className="block mt-2">
+          <a href="#" onClick={openOptionsPage}>
+            Open Options
+          </a>
+        </span>
       </p>
     )
   }
 
-  return <p className="text-[#b6b8ba] animate-pulse">Waiting for ChatGPT summarize...</p>
+  return <p className="text-[#b6b8ba] animate-pulse">Waiting for Solar LLM summarize...</p>
 }
 
 export default memo(ChatGPTQuery)
