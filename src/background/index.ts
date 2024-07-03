@@ -49,7 +49,8 @@ Browser.runtime.onConnect.addListener((port) => {
       )
     } catch (err: any) {
       console.error(err)
-      port.postMessage({ text: err.message })
+      const error_msg = '\nPlease check your API key and model name in the extension options.'
+      port.postMessage({ text: err.message + error_msg })
     }
   })
 })

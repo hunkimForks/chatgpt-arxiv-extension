@@ -92,6 +92,11 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
       </nav>
       <main className="w-[600px] mx-auto mt-14">
         <Text h2>Options</Text>
+        <Text h3 className="mt-5 mb-0">
+          AI Provider (Now, we only support Solar LLM)
+        </Text>
+        <ProviderSelect />
+
         <Text h3 className="mt-5">
           Prompt
         </Text>
@@ -176,10 +181,6 @@ function OptionsPage(props: { theme: Theme; onThemeChange: (theme: Theme) => voi
             )
           })}
         </Radio.Group>
-        <Text h3 className="mt-5 mb-0">
-          AI Provider
-        </Text>
-        <ProviderSelect />
         <Text h3 className="mt-8">
           Misc
         </Text>
